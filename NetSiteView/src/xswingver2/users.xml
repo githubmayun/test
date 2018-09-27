@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xwindow>
+	<sites title="jlabels">
+		<site id="center" icon="zhongguo.jpg" icon_f="zhongguo_f.jpg" xpos="500" ypos="530" width="180"
+			height="140" status="true" name="中心" ip="127.0.0.1">中心</site>
+		<site id="fujian" icon="9fujian.jpg" iconf_f="fujian_f.jpg" xpos="880" ypos="530" width="120"
+			height="100" status="true" name="福建"  ip="127.0.0.1">福建</site>
+		<site id="guangdong" icon="9guangdong.jpg" iconf_f="guangdong_f.jpg" xpos="768" ypos="262" width="120"
+			height="100" status="true" name="广东" ip="127.0.0.1">广东</site>
+		<site id="hebei" icon="9hebei.jpg" iconf_f="hebei_f.jpg" xpos="500" ypos="150" width="120"
+			height="100" status="true" name="河北" ip="127.0.0.1">河北</site>
+		<site id="liaoning" icon="9liaoning.jpg" iconf_f="liaoning_f.jpg" xpos="232" ypos="262" width="120"
+			height="100" status="true" name="辽宁" ip="127.0.0.1">辽宁</site>
+		<site id="ningxia" icon="9ningxia.jpg" iconf_f="ningxia_f.jpg" xpos="120" ypos="530" width="120"
+			height="100" status="true" name="宁夏" ip="127.0.0.1">宁夏</site>
+			<site id="shanxi" icon="9shanxi.jpg" iconf_f="shanxi_f.jpg" xpos="120" ypos="530" width="120"
+			height="100" status="true" name="山西" ip="127.0.0.1">山西</site>
+			<site id="tianjin" icon="9tianjin.jpg" iconf_f="tianjin_f.jpg" xpos="120" ypos="530" width="120"
+			height="100" status="false" name="天津" ip="192.0.0.1">天津</site>
+	</sites>
+	<lines title="jlines">
+		<line id="fujian" width="4.0f" dash="10_10" color="0_0_255" x1pos="500" y1pos="530" x2pos="880"
+			y2pos="530" status="true" name="福建" >福建</line>
+		<line id="guangdong" width="4.0f" dash="10_10" color="0_0_255"  x1pos="500" y1pos="530" x2pos="768"
+			y2pos="262" status="true" name="广东">广东</line>
+		<line id="hebei"  width="4.0f" dash="10_10" color="0_0_255" x1pos="500" y1pos="530" x2pos="500"
+			y2pos="150" status="true" name="河北" >河北</line>
+		<line id="liaoning"  width="4.0f" dash="10_10" color="0_0_255"  x1pos="500" y1pos="530" x2pos="232"
+			y2pos="262" status="true" name="辽宁">辽宁</line>
+		<line id="ningxia"  width="4.0f" dash="10_10" color="0_0_255" x1pos="500" y1pos="530" x2pos="120"
+			y2pos="530" status="true"  name="宁夏">宁夏</line>
+			<line id="shanxi"  width="4.0f" dash="10_10" color="0_0_255" x1pos="500" y1pos="530" x2pos="120"
+			y2pos="530" status="true"  name="山西">山西</line>
+			<line id="tianjin"  width="4.0f" dash="10_10" color="0_0_255" x1pos="500" y1pos="530" x2pos="120"
+			y2pos="530" status="false"  name="天津">天津</line>
+	</lines>
+</xwindow>
