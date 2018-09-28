@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.EventHandler;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ public class MainFrame extends JFrame {
 	JPanel contentPanel;
 	private Map<String, LabelModel> sitesM = new HashMap<>();
 	private Map<String, LineModel> linesM = new HashMap<>();
-	private List<String> lsall;
 	// GraphPanel gpanel=null;
 	GraphPanelver2 gpanel = null;
 	DataBackEndver2 dbe = null;

@@ -5,13 +5,18 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class NetSiteModel {
+	private String id;
 	private String name;
 	private String ipaddr;
 	private boolean status;
-	private boolean changed;
+	private int delay;
 
 	public NetSiteModel() {
-
+		id=null;
+		name = null;
+		ipaddr = null;
+		status = false;
+		delay = 0;
 	}
 
 	@SuppressWarnings("finally")
@@ -34,6 +39,9 @@ public class NetSiteModel {
 			return b;
 		}
 	}
+	public String getId() {
+		return this.id;
+	}
 
 	public String getName() {
 		return this.name;
@@ -41,6 +49,10 @@ public class NetSiteModel {
 
 	public String getIpaddr() {
 		return this.ipaddr;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setName(String name) {
@@ -59,12 +71,12 @@ public class NetSiteModel {
 		this.status = b;
 	}
 
-	public boolean getChanged() {
-		return this.changed;
+	public int getDelay() {
+		return this.delay;
 	}
 
-	public void setChanged(boolean b) {
-		this.changed = b;
+	public void setDelay(int dt) {
+		this.delay = dt;
 	}
 
 }

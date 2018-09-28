@@ -13,11 +13,11 @@ import java.util.concurrent.Executors;
 public class DataBackEndver2 implements Runnable {
 	private List<Refreshing> listeners = new ArrayList<>();
 	private List<NetSiteModel> results = new ArrayList<>();
-	private BitSet bscur = null, bspre = null, bstemp;
+	private BitSet bscur = null;
 	private int bssize;
 	private List<Callable<Boolean>> tasks = new ArrayList<Callable<Boolean>>();
-	private static ExecutorService pool = Executors.newCachedThreadPool();
-	private static ExecutorCompletionService<Boolean> service = new ExecutorCompletionService<>(pool);
+	private ExecutorService pool = Executors.newCachedThreadPool();
+	private ExecutorCompletionService<Boolean> service = new ExecutorCompletionService<>(pool);
 
 	public DataBackEndver2() {
 		new ModelsByXML().parseNetSitesByStreamReader(results);
@@ -27,25 +27,14 @@ public class DataBackEndver2 implements Runnable {
 
 	public void init() {
 		bscur = new BitSet(bssize);
-		bspre = new BitSet(bssize);
 		bscur.clear();
-		bspre.clear();
-		int i = 0;
 		for (NetSiteModel nsm : results) {
 			Callable<Boolean> t = new SimplePingver2(nsm);
 			tasks.add(t);
-			if (nsm.getStatus())
-				bspre.set(i);
-			i++;
 		}
 	}
 
 	public void runReresh() {
-		// TODO Auto-generated method stub
-		bstemp = bspre;
-		bspre = bscur;
-		bscur = bstemp;	
-		bscur.clear();
 		for (Callable<Boolean> task : tasks) {
 			service.submit(task);
 		}
@@ -53,33 +42,18 @@ public class DataBackEndver2 implements Runnable {
 			try {
 				service.take().get();
 			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		//
-		if (hasChanged())
-			notifyAllListeners(bspre);
-	}
-
-	private boolean hasChanged() {
-		int i = 0;
-		boolean b = false;
+		} //
+		int index = 0;
+		bscur.clear();
 		for (NetSiteModel nsm : results) {
-			if (nsm.getStatus())
-				bscur.set(i);
-			i++;
-		}
-		bspre.xor(bscur);
-		for (int j = 0; j < bssize; j++) {
-			if (bspre.get(i)) {
-				b = true;
-				results.get(i).setChanged(true);
-				break;
+			if (nsm.getStatus()) {
+				bscur.set(index);
 			}
+			index++;
 		}
-	
-		return b;
+		notifyAllListeners(results, bscur);
 	}
 
 	public void cancleJob() {
@@ -94,12 +68,11 @@ public class DataBackEndver2 implements Runnable {
 		listeners.remove(rf);
 	}
 
-	public void notifyAllListeners(BitSet bschanged) {
-
+	public void notifyAllListeners(List<NetSiteModel> results, BitSet bschanged) {
 		for (Refreshing rf : listeners) {
 			EventQueue.invokeLater(new Runnable() {
 				public void run() {
-					rf.refresh(bschanged);
+					rf.refresh(results, bschanged);
 				}
 			});
 		}
@@ -110,5 +83,4 @@ public class DataBackEndver2 implements Runnable {
 		// TODO Auto-generated method stub
 		runReresh();
 	}
-
 }

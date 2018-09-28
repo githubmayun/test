@@ -27,6 +27,8 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	private ImageIcon icon = null;
 	private Map<String, LabelModel> sitesM = null;
 	private Map<String, LineModel> linesM = null;
+	private BitSet bitcur, bitpre;
+	private boolean isFirst;
 
 	public GraphPanelver2() {
 		this.init();
@@ -61,6 +63,9 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		setSize(width, height);
 		setBorder(BorderFactory.createLineBorder(Color.CYAN));
 		setLayout(null);
+		bitcur = new BitSet(linesM.size());
+		bitpre = new BitSet(linesM.size());
+		isFirst = true;
 		buildSites();
 		buildLines();
 		return true;
@@ -108,7 +113,6 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		LabelModel cenLabel = sitesM.get("center");
 		LabelModel theLabel = null;
 		LineModel theLine = null;
-		LineModel lm = null;
 		for (Map.Entry<String, LabelModel> entry : sitesM.entrySet()) {
 			if (!entry.getKey().equals("center")) {
 				theLabel = entry.getValue();
@@ -124,15 +128,15 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	}
 
 	//
-	private boolean updateGraphStatus(BitSet bschanged) {
+	private boolean updateGraphStatus(List<NetSiteModel> results, BitSet bschanged) {
 		LabelComponent theSite;
 		LineComponent theLine;
-		for (int i = 0; i < bschanged.size(); i++) {
+		for (int i = 0; i < bschanged.length(); i++) {
 			if (bschanged.get(i)) {
-				//theSite = (LabelComponent) allSites.get(i);
-				//theLine = allLines.get(i);
-			//	theSite.updateStatus(true);
-				//theLine.updateStatus(true);
+				theSite = (LabelComponent) allSites.get(results.get(i).getId());
+				theLine = allLines.get(results.get(i).getId());
+				theSite.reverseStatus();
+				theLine.reverseStatus();
 			}
 		}
 		return true;
@@ -255,9 +259,26 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	}
 
 	@Override
-	public void refresh(BitSet bschanged) {
+	public void refresh(List<NetSiteModel> results, BitSet bss) {
 		// TODO Auto-generated method stub
-		updateGraphStatus(bschanged);
+		if (isFirst) {
+			bitpre.clear();
+			bitcur.clear();
+			bitpre.or(bss);
+			isFirst = false;
+		} else {
+			bitcur.clear();
+			bitcur.or(bss);
+		}
+		bitcur.xor(bitpre);
+		// bitpre始终保存上一次状态
+		bitpre.clear();
+		bitpre.or(bss);
+		// BitSet不是线程安全的；bitpre bitcur必须在下一次接收refresh前更新完毕！
+		//因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
+		if (!bitcur.isEmpty())
+			updateGraphStatus(results, bitcur);
+
 	}
 
 }

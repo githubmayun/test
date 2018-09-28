@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class SimplePingver2 implements Callable<Boolean> {
 	private NetSiteModel nsm = null;
 	private static final String OSNAME = System.getProperty("os.name");
+	Runtime r = Runtime.getRuntime();
 
 	public SimplePingver2(NetSiteModel nsm) {
 		this.nsm = nsm;
@@ -19,13 +21,13 @@ public class SimplePingver2 implements Callable<Boolean> {
 	public Boolean call() throws Exception {
 		// TODO Auto-generated method stub
 		boolean b = commandExecPing(nsm.getIpaddr(), "1000");
+		// b=new Random().nextInt(100)>20;//for test
 		nsm.setStatus(b);
 		return b;
 	}
 
 	public boolean commandExecPing(String ipaddr, String timeout) {
-		String cmdstr;
-		Runtime r = Runtime.getRuntime();
+		String cmdstr = null;
 		BufferedReader in = null;
 		String linestr = null;
 		if (OSNAME.contains("Windows"))
@@ -34,15 +36,15 @@ public class SimplePingver2 implements Callable<Boolean> {
 			cmdstr = "ping " + " -w " + timeout + "-c 1" + " " + ipaddr;// linux
 		try {
 			Process p = r.exec(cmdstr);
-			if (p == null) {
-				System.out.println("null process");
+			if (p == null)
 				return false;
-			}
+
 			in = new BufferedReader(new InputStreamReader(p.getInputStream(), Charset.forName("GBK")));
 			while ((linestr = in.readLine()) != null) {
-				if (linestr.contains("TTL"))
-					System.out.println(nsm.getIpaddr() + " true");
-				return true;
+				if (linestr.contains("TTL")) {
+					//System.out.println(nsm.getIpaddr() + " true");
+					return true;
+				}
 			}
 			return false;
 		} catch (Exception ex) {

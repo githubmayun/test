@@ -90,10 +90,10 @@ public class ModelsByXML {
 					if ("site".equalsIgnoreCase(reader.getLocalName())) {
 						if (!reader.getAttributeValue(0).trim().equalsIgnoreCase("center")) {
 							nsm = new NetSiteModel();
-							nsm.setName(reader.getAttributeValue(0).trim());
+							nsm.setId(reader.getAttributeValue(0).trim());
 							nsm.setStatus(Boolean.parseBoolean(reader.getAttributeValue(7).trim()));
+							nsm.setName(reader.getAttributeValue(8));
 							nsm.setIpaddr(reader.getAttributeValue(9).trim());
-							nsm.setChanged(false);
 							results.add(nsm);
 						}
 					}

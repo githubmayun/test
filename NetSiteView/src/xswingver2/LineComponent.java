@@ -64,11 +64,9 @@ public class LineComponent extends JComponent {
 				lm.getY2pos() - lm.getCornerY());
 	}
 
-	public void updateStatus(boolean bb) {
-		if (this.lm.getStatus() != bb) {
-			this.lm.setStatus(bb);
-			repaint();
-		}
+	public void reverseStatus() {
+		lm.setStatus(lm.getStatus() ? false : true);
+		repaint();
 	}
 
 	public Dimension getPreferredSize() {
