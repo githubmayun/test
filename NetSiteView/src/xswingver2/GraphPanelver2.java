@@ -27,7 +27,7 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	private ImageIcon icon = null;
 	private Map<String, LabelModel> sitesM = null;
 	private Map<String, LineModel> linesM = null;
-	private BitSet bitcur, bitpre;
+	private BitSet bitcur, bitpre, bittemp;
 	private boolean isFirst;
 
 	public GraphPanelver2() {
@@ -65,6 +65,7 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		setLayout(null);
 		bitcur = new BitSet(linesM.size());
 		bitpre = new BitSet(linesM.size());
+		bittemp = new BitSet(linesM.size());
 		isFirst = true;
 		buildSites();
 		buildLines();
@@ -140,6 +141,19 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			}
 		}
 		return true;
+	}
+
+	// 更新所有的
+	private boolean updateGraphStatus(boolean status) {
+		for (LabelModel lm : sitesM.values()) {
+			lm.setStatus(status);
+		}
+		for (LineModel lm : linesM.values()) {
+			lm.setStatus(status);
+		}
+		repaint();
+		return true;
+
 	}
 
 	//
@@ -260,25 +274,60 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 
 	@Override
 	public void refresh(List<NetSiteModel> results, BitSet bss) {
-		// TODO Auto-generated method stub
-		if (isFirst) {
+		if (results == null) {
+			updateGraphStatus(false);
 			bitpre.clear();
-			bitcur.clear();
-			bitpre.or(bss);
-			isFirst = false;
 		} else {
-			bitcur.clear();
-			bitcur.or(bss);
+			// TODO Auto-generated method stub
+			if (isFirst) {
+				bitpre.clear();
+				bitcur.clear();
+				bitpre.or(bss);
+				isFirst = false;
+			} else {
+				bitcur.clear();
+				bitcur.or(bss);
+			}
+			bitcur.xor(bitpre);
+			// bitpre始终保存上一次状态
+			bitpre.clear();
+			bitpre.or(bss);
+			// BitSet不是线程安全的；bitpre bitcur必须在下一次接收 bss refresh前更新完毕！
+			// 因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
+			if (!bitcur.isEmpty())
+				updateGraphStatus(results, bitcur);
 		}
-		bitcur.xor(bitpre);
-		// bitpre始终保存上一次状态
-		bitpre.clear();
-		bitpre.or(bss);
-		// BitSet不是线程安全的；bitpre bitcur必须在下一次接收refresh前更新完毕！
-		//因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
-		if (!bitcur.isEmpty())
-			updateGraphStatus(results, bitcur);
-
 	}
 
+	public void networkRefresh(List<NetSiteModel> results) {
+		if (results == null) {
+			updateGraphStatus(false);
+			bitpre.clear();
+		} else {
+			// build bitmap
+			int i = 0;
+			bittemp.clear();
+			for (NetSiteModel nsm : results) {
+				if (nsm.getStatus())
+					bittemp.set(i);
+				i++;
+			}
+			if (isFirst) {
+				bitpre.clear();
+				bitcur.clear();
+				bitcur.or(bittemp);
+				isFirst = false;
+			} else {
+				bitcur.clear();
+				bitcur.or(bittemp);
+			}
+			bitcur.xor(bitpre);
+			// bitpre始终保存上一次状态
+			bitpre.clear();
+			bitpre.or(bittemp);
+
+			if (!bitcur.isEmpty())
+				updateGraphStatus(results, bitcur);
+		}
+	}
 }

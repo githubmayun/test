@@ -10,13 +10,16 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JComponent;
+
+
 public class DataBackEndver2 implements Runnable {
 	private List<Refreshing> listeners = new ArrayList<>();
 	private List<NetSiteModel> results = new ArrayList<>();
 	private BitSet bscur = null;
 	private int bssize;
 	private List<Callable<Boolean>> tasks = new ArrayList<Callable<Boolean>>();
-	private ExecutorService pool = Executors.newCachedThreadPool();
+	private ExecutorService pool = Executors.newCachedThreadPool();// pool.shutdown?
 	private ExecutorCompletionService<Boolean> service = new ExecutorCompletionService<>(pool);
 
 	public DataBackEndver2() {
@@ -32,6 +35,10 @@ public class DataBackEndver2 implements Runnable {
 			Callable<Boolean> t = new SimplePingver2(nsm);
 			tasks.add(t);
 		}
+	}
+
+	public void shutdown() {
+		pool.shutdown();
 	}
 
 	public void runReresh() {
@@ -68,13 +75,16 @@ public class DataBackEndver2 implements Runnable {
 		listeners.remove(rf);
 	}
 
-	public void notifyAllListeners(List<NetSiteModel> results, BitSet bschanged) {
+	public void notifyAllListeners(List<NetSiteModel> results, BitSet bsstate) {
 		for (Refreshing rf : listeners) {
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					rf.refresh(results, bschanged);
-				}
-			});
+			if (rf instanceof JComponent) {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						rf.refresh(results, bsstate);
+					}
+				});
+			} else
+				rf.refresh(results, bsstate);
 		}
 	}
 

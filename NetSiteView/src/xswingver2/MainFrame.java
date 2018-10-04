@@ -28,9 +28,9 @@ public class MainFrame extends JFrame {
 	private Map<String, LineModel> linesM = new HashMap<>();
 	// GraphPanel gpanel=null;
 	GraphPanelver2 gpanel = null;
-	DataBackEndver2 dbe = null;
+	ReceiveDatasByMulticast dbe = null;
 
-	public MainFrame(int width, int height, DataBackEndver2 dbe) {
+	public MainFrame(int width, int height, ReceiveDatasByMulticast dbe) {
 		this.width = width;
 		this.height = height;
 		this.dbe = dbe;

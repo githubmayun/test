@@ -1,10 +1,12 @@
 package xswingver2;
 
-import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-public class NetSiteModel {
+public class NetSiteModel implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String name;
 	private String ipaddr;
@@ -18,8 +20,7 @@ public class NetSiteModel {
 		status = false;
 		delay = 0;
 	}
-
-	@SuppressWarnings("finally")
+  /*  @SuppressWarnings("finally")
 	public boolean ping() {
 		InetAddress address;
 		boolean b = false;
@@ -38,7 +39,7 @@ public class NetSiteModel {
 			this.setStatus(b);
 			return b;
 		}
-	}
+	}*/
 	public String getId() {
 		return this.id;
 	}
