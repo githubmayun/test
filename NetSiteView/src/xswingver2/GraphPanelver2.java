@@ -51,7 +51,7 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	public GraphPanelver2(String background, int x, int y, Map<String, LabelModel> sites,
 			Map<String, LineModel> lines) {
 		this.background = background;
-		icon = new ImageIcon(this.background);
+		this.icon = new ImageIcon(this.background);
 		this.width = x;
 		this.height = y;
 		this.sitesM = sites;
@@ -99,11 +99,15 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		buildLineModels();
 		LineComponent linecomponent;
 		for (LineModel lm : linesM.values()) {
+
 			linecomponent = new LineComponent(lm);
 			linecomponent.setName(lm.getId());
 			allLines.put(lm.getId(), linecomponent);
 			this.add(linecomponent);
 			linecomponent.setBounds(lm.getCornerX(), lm.getCornerY(), lm.getWidth(), lm.getHeight());
+			if ("three".equalsIgnoreCase(lm.getType())) {
+				linecomponent.setVisible(false);
+			}
 		}
 		return true;
 	}
@@ -113,19 +117,37 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			return false;
 		LabelModel cenLabel = sitesM.get("center");
 		LabelModel theLabel = null;
-		LineModel theLine = null;
+		int x1, y1, x2, y2;
+		x1 = cenLabel.getXpos();
+		y1 = cenLabel.getYpos();
+		String tid = null;
 		for (Map.Entry<String, LabelModel> entry : sitesM.entrySet()) {
 			if (!entry.getKey().equals("center")) {
 				theLabel = entry.getValue();
-				theLine = linesM.get(entry.getKey());
-				theLine.setX1pos(cenLabel.getXpos());
-				theLine.setY1pos(cenLabel.getYpos());
-				theLine.setX2pos(theLabel.getXpos());
-				theLine.setY2pos(theLabel.getYpos());
+				tid = entry.getKey();
+				x2 = theLabel.getXpos();
+				y2 = theLabel.getYpos();
+				newLineXY(tid, x1, y1, x2, y2);
 				// linesM.put(theLabel.getId(), lm);
 			}
 		}
 		return true;
+	}
+
+	private void newLineXY(String id, int x1, int y1, int x2, int y2) {
+		LineModel theLine = null;
+		//
+		theLine = linesM.get(id + "_1");
+		theLine.setX1pos(x1);
+		theLine.setY1pos(y1);
+		theLine.setX2pos(x2 - GlobalConstants.FSXDISTANCE);
+		theLine.setY2pos(y2 - GlobalConstants.FSYDISTANCE);
+		//
+		theLine = linesM.get(id + "_2");
+		theLine.setX1pos(x1);
+		theLine.setY1pos(y1);
+		theLine.setX2pos(x2 + GlobalConstants.FSXDISTANCE);
+		theLine.setY2pos(y2 + GlobalConstants.FSYDISTANCE);
 	}
 
 	//
@@ -134,9 +156,9 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		LineComponent theLine;
 		for (int i = 0; i < bschanged.length(); i++) {
 			if (bschanged.get(i)) {
-				theSite = (LabelComponent) allSites.get(results.get(i).getId());
+				// theSite = (LabelComponent) allSites.get(results.get(i).getId());
 				theLine = allLines.get(results.get(i).getId());
-				theSite.reverseStatus();
+				// theSite.reverseStatus();
 				theLine.reverseStatus();
 			}
 		}
@@ -174,7 +196,7 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		//
 		int startX, startY, startX_L, startY_L;
 		LabelModel theSite;
-		LineModel theLine;
+		LineModel theLine_1, theLine_2;
 		boolean isCenter = false;
 
 		public MyMouseHandler() {
@@ -208,10 +230,14 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 				}
 				// this.comp.repaint();
 			} else {
-				theLine.setX2pos(startX_L + newX - oldX);
-				theLine.setY2pos(startY_L + newY - oldY);
-				allLines.get(theLine.getId()).setBounds(theLine.getCornerX(), theLine.getCornerY(), theLine.getWidth(),
-						theLine.getHeight());
+				theLine_1.setX2pos(startX_L + newX - oldX);
+				theLine_1.setY2pos(startY_L + newY - oldY);
+				theLine_2.setX2pos(startX_L + newX - oldX + GlobalConstants.FSXDISTANCE * 2);
+				theLine_2.setY2pos(startY_L + newY - oldY + GlobalConstants.FSYDISTANCE * 2);
+				allLines.get(theLine_1.getId()).setBounds(theLine_1.getCornerX(), theLine_1.getCornerY(),
+						theLine_1.getWidth(), theLine_1.getHeight());
+				allLines.get(theLine_2.getId()).setBounds(theLine_2.getCornerX(), theLine_2.getCornerY(),
+						theLine_2.getWidth(), theLine_2.getHeight());
 			}
 		}
 
@@ -231,9 +257,10 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 				startY_L = theSite.getYpos();
 			} else {
 				isCenter = false;
-				theLine = linesM.get(theSite.getId());
-				startX_L = theLine.getX2pos();
-				startY_L = theLine.getY2pos();
+				theLine_1 = linesM.get(theSite.getId() + "_1");
+				theLine_2 = linesM.get(theSite.getId() + "_2");
+				startX_L = theLine_1.getX2pos();
+				startY_L = theLine_1.getY2pos();
 			}
 			//
 			startX = theSite.getXpos();
@@ -254,9 +281,10 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 				startY_L = theSite.getYpos();
 			} else {
 				isCenter = false;
-				theLine = linesM.get(theSite.getId());
-				startX_L = theLine.getX2pos();
-				startY_L = theLine.getY2pos();
+				theLine_1 = linesM.get(theSite.getId() + "_1");
+				theLine_2 = linesM.get(theSite.getId() + "_2");
+				startX_L = theLine_1.getX2pos();
+				startY_L = theLine_1.getY2pos();
 			}
 			//
 			startX = theSite.getXpos();

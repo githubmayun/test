@@ -67,8 +67,9 @@ public class ModelsByXML {
 						line.setY1pos(Integer.parseInt(reader.getAttributeValue(5)));
 						line.setX2pos(Integer.parseInt(reader.getAttributeValue(6)));
 						line.setY2pos(Integer.parseInt(reader.getAttributeValue(7)));
-						line.setStatus(Boolean.parseBoolean(reader.getAttributeValue(8)));
+						line.setStatus(Boolean.parseBoolean(reader.getAttributeValue(8).trim()));
 						line.setName(reader.getAttributeValue(9));
+						line.setType(reader.getAttributeValue(11).trim());
 						linesM.put(line.getId(), line);
 					}
 				}
@@ -87,15 +88,13 @@ public class ModelsByXML {
 		try {
 			while (reader.hasNext()) {
 				if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
-					if ("site".equalsIgnoreCase(reader.getLocalName())) {
-						if (!reader.getAttributeValue(0).trim().equalsIgnoreCase("center")) {
+					if ("line".equalsIgnoreCase(reader.getLocalName())) {
 							nsm = new NetSiteModel();
 							nsm.setId(reader.getAttributeValue(0).trim());
-							nsm.setStatus(Boolean.parseBoolean(reader.getAttributeValue(7).trim()));
-							nsm.setName(reader.getAttributeValue(8));
-							nsm.setIpaddr(reader.getAttributeValue(9).trim());
-							results.add(nsm);
-						}
+							nsm.setStatus(Boolean.parseBoolean(reader.getAttributeValue(8).trim()));
+							nsm.setName(reader.getAttributeValue(9));
+							nsm.setIpaddr(reader.getAttributeValue(10).trim());
+							results.add(nsm);						
 					}
 				}
 				reader.next();

@@ -54,11 +54,16 @@ public class LineComponent extends JComponent {
 		g2.setColor(getColor());
 		// public BasicStroke(float width, int cap, int join, float miterlimit, float[]
 		// dash, float dash_phase)
-		if (lm.getStatus())
+		if ("one".equalsIgnoreCase(lm.getType().trim())) {
+			//System.out.println("one");
 			g2.setStroke(new BasicStroke(getLineWidth(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 3.5f));
-		else
+		} else if ("two".equalsIgnoreCase(lm.getType().trim())) {
+			//System.out.println("two");
 			g2.setStroke(
 					new BasicStroke(getLineWidth(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 3.5f, getDash(), 0f));
+		} else {
+			//System.out.println(lm.getType().trim());
+		}
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.drawLine(lm.getX1pos() - lm.getCornerX(), lm.getY1pos() - lm.getCornerY(), lm.getX2pos() - lm.getCornerX(),
 				lm.getY2pos() - lm.getCornerY());

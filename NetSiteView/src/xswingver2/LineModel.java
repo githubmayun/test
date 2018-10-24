@@ -15,6 +15,7 @@ public class LineModel {
 	// private int cornerX;
 	// private int cornerY;
 	private boolean status;
+	private String type;
 
 	public LineModel() {
 	}
@@ -144,5 +145,12 @@ public class LineModel {
 
 	public void setStatus(boolean b) {
 		this.status = b;
+	}
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String ty) {
+		this.type = ty;
 	}
 }

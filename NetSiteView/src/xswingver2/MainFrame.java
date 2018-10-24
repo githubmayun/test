@@ -44,7 +44,7 @@ public class MainFrame extends JFrame {
 
 	public boolean init() {
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		//setJMenuBar(menuBar);
 		JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 		JMenuItem newItem = new JMenuItem("New");
@@ -53,6 +53,7 @@ public class MainFrame extends JFrame {
 		JMenuItem exitItem = new JMenuItem("Exit");
 		menu.add(exitItem);
 		exitItem.addActionListener(EventHandler.create(ActionListener.class, this, "exitProgram"));
+		newPanel();
 		return true;
 	}
 
@@ -91,7 +92,7 @@ public class MainFrame extends JFrame {
 			new ModelsByXML().parseSitesByStreamReader(sitesM, linesM);
 			return true;
 		}
-
+//
 		protected void done() {
 			try {
 				if (get()) {
@@ -103,12 +104,10 @@ public class MainFrame extends JFrame {
 					MainFrame.this.add(gpanel);
 					validate();
 				}
-
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(MainFrame.this, e);
 			}
 		}
-
 	}
 
 }

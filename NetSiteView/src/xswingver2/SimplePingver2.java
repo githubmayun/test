@@ -21,7 +21,7 @@ public class SimplePingver2 implements Callable<Boolean> {
 	public Boolean call() throws Exception {
 		// TODO Auto-generated method stub
 		boolean b = commandExecPing(nsm.getIpaddr(), "1000");
-		 b=new Random().nextInt(100)>5;//for test
+		 //b=new Random().nextInt(100)>5;//for test
 		nsm.setStatus(b);
 		return b;
 	}
