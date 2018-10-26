@@ -8,9 +8,6 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 
 public class Entrance {
-	private static final int DEFAULT_WIDTH = 1800;
-	private static final int DEFAULT_HEIGHT = 900;
-
 	public static void main(String args[]) {
 	//start server...
 		DataBackEndver2 dbe = new DataBackEndver2();
@@ -24,7 +21,7 @@ public class Entrance {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				//JFrame frame = new MainFrame(DEFAULT_WIDTH, DEFAULT_HEIGHT, dbe);
-				JFrame frame = new MainFrame(DEFAULT_WIDTH, DEFAULT_HEIGHT, rdbm);
+				JFrame frame = new MainFrame(rdbm);
 				frame.setTitle("网络态势图");
 				frame.setVisible(true);
 			}

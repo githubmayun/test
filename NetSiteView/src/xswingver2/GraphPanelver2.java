@@ -22,7 +22,7 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	private static final long serialVersionUID = 1L;
 	private String background = null;
 	private int width, height;
-	private Map<String, JLabel> allSites = new HashMap<String, JLabel>();
+	private Map<String, LabelComponent> allSites = new HashMap<String, LabelComponent>();
 	private Map<String, LineComponent> allLines = new HashMap<String, LineComponent>();
 	private ImageIcon icon = null;
 	private Map<String, LabelModel> sitesM = null;
@@ -75,7 +75,7 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	public boolean buildSites() {
 		if (sitesM.isEmpty())
 			return false;
-		JLabel label;
+		LabelComponent label;
 		MyMouseHandler mhand = new MyMouseHandler();
 		for (LabelModel lm : sitesM.values()) {
 			label = new LabelComponent(lm);
@@ -99,7 +99,6 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		buildLineModels();
 		LineComponent linecomponent;
 		for (LineModel lm : linesM.values()) {
-
 			linecomponent = new LineComponent(lm);
 			linecomponent.setName(lm.getId());
 			allLines.put(lm.getId(), linecomponent);
@@ -136,33 +135,33 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 
 	private void newLineXY(String id, int x1, int y1, int x2, int y2) {
 		LineModel theLine = null;
+		boolean b = Math.abs(y1 - y2) > Math.abs(x1 - x2);
 		//
 		theLine = linesM.get(id + "_1");
-		theLine.setX1pos(x1);
-		theLine.setY1pos(y1);
-		theLine.setX2pos(x2 - GlobalConstants.FSXDISTANCE);
-		theLine.setY2pos(y2 - GlobalConstants.FSYDISTANCE);
-		//
-		theLine = linesM.get(id + "_2");
-		theLine.setX1pos(x1);
-		theLine.setY1pos(y1);
-		theLine.setX2pos(x2 + GlobalConstants.FSXDISTANCE);
-		theLine.setY2pos(y2 + GlobalConstants.FSYDISTANCE);
-	}
-
-	//
-	private boolean updateGraphStatus(List<NetSiteModel> results, BitSet bschanged) {
-		LabelComponent theSite;
-		LineComponent theLine;
-		for (int i = 0; i < bschanged.length(); i++) {
-			if (bschanged.get(i)) {
-				// theSite = (LabelComponent) allSites.get(results.get(i).getId());
-				theLine = allLines.get(results.get(i).getId());
-				// theSite.reverseStatus();
-				theLine.reverseStatus();
+		if (theLine != null) {
+			theLine.setX1pos(x1);
+			theLine.setY1pos(y1);
+			if (b) {
+				theLine.setX2pos(x2 - GlobalConstants.FSXDISTANCE);
+				theLine.setY2pos(y2);
+			} else {
+				theLine.setX2pos(x2);
+				theLine.setY2pos(y2 - GlobalConstants.FSYDISTANCE);
 			}
 		}
-		return true;
+		//
+		theLine = linesM.get(id + "_2");
+		if (theLine != null) {
+			theLine.setX1pos(x1);
+			theLine.setY1pos(y1);
+			if (b) {
+				theLine.setX2pos(x2 + GlobalConstants.FSXDISTANCE);
+				theLine.setY2pos(y2);
+			} else {
+				theLine.setX2pos(x2);
+				theLine.setY2pos(y2 + GlobalConstants.FSYDISTANCE);
+			}
+		}
 	}
 
 	// 更新所有的
@@ -175,7 +174,34 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		}
 		repaint();
 		return true;
+	}
 
+	private boolean updateGraphStatusByResults(List<NetSiteModel> results) {
+		LineModel theLineM = null;
+		LabelModel theLabelM = null;
+		String lineId = null;
+		String siteId, lineNum;
+		boolean b;
+		for (int i = 0; i < results.size(); i++) {
+			lineId = results.get(i).getId();
+			theLineM = linesM.get(lineId);
+			b = results.get(i).getStatus();
+			theLineM.setStatus(b);
+			//
+			siteId = lineId.split("_")[0];
+			lineNum = lineId.split("_")[1];
+			theLabelM = sitesM.get(siteId);
+			if (lineNum.equals("1")) {
+				theLabelM.setLine1Status(b);
+			} else if (lineNum.equals("2")) {
+				theLabelM.setLine2Status(b);
+			}
+		}
+		for (LabelComponent lcom : allSites.values()) {
+			lcom.validateStatus();
+		}
+		this.repaint();
+		return true;
 	}
 
 	//
@@ -194,9 +220,9 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	private class MyMouseHandler extends MouseAdapter {
 		int newX, newY, oldX, oldY;
 		//
-		int startX, startY, startX_L, startY_L;
-		LabelModel theSite;
-		LineModel theLine_1, theLine_2;
+		int startX, startY;
+		LabelModel theSite = null, theSiteCenter = null;
+		LineModel theLine_1 = null, theLine_2 = null;
 		boolean isCenter = false;
 
 		public MyMouseHandler() {
@@ -209,35 +235,53 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			//
 			newX = e.getXOnScreen();
 			newY = e.getYOnScreen();
+			int newSiteX = startX + newX - oldX;
+			int newSiteY = startY + newY - oldY;
+			int cenSiteX = theSiteCenter.getXpos();
+			int cenSiteY = theSiteCenter.getYpos();			
 			// update site model
-			theSite.setXpos(Math.max(Math.min((startX + newX - oldX), width), theSite.getWidth() / 2));
-			theSite.setYpos(Math.max(Math.min((startY + newY - oldY), height), theSite.getWidth() / 2));
-			//
-			// cp.setBounds(startX + (newX - oldX), startY + (newY - oldY), cp.getWidth(),
-			// cp.getHeight());
+			theSite.setXpos(Math.max(Math.min(newSiteX, width - theSite.getWidth() / 2), theSite.getWidth() / 2));
+			theSite.setYpos(Math.max(Math.min(newSiteY, height - theSite.getHeight() / 2), theSite.getHeight() / 2));
+			newSiteX=theSite.getXpos();
+			newSiteY=theSite.getYpos();
+			boolean b = Math.abs(newSiteY - cenSiteY) > Math.abs(newSiteX - cenSiteX);
 			cp.setBounds(theSite.getXpos() - theSite.getWidth() / 2, theSite.getYpos() - theSite.getHeight() / 2,
 					theSite.getWidth(), theSite.getHeight());
 			// update line model this.comp.invalidate();//update all?
 			if (isCenter) {
 				for (LineModel entry : linesM.values()) {
-					entry.setX1pos(startX_L + newX - oldX);
-					entry.setY1pos(startY_L + newY - oldY);
+					entry.setX1pos(newSiteX);
+					entry.setY1pos(newSiteY);
 				}
 				for (LineComponent comp : allLines.values()) {
 					comp.setBounds(comp.getLineModel().getCornerX(), comp.getLineModel().getCornerY(),
 							comp.getLineModel().getWidth(), comp.getLineModel().getHeight());
-
 				}
 				// this.comp.repaint();
 			} else {
-				theLine_1.setX2pos(startX_L + newX - oldX);
-				theLine_1.setY2pos(startY_L + newY - oldY);
-				theLine_2.setX2pos(startX_L + newX - oldX + GlobalConstants.FSXDISTANCE * 2);
-				theLine_2.setY2pos(startY_L + newY - oldY + GlobalConstants.FSYDISTANCE * 2);
-				allLines.get(theLine_1.getId()).setBounds(theLine_1.getCornerX(), theLine_1.getCornerY(),
-						theLine_1.getWidth(), theLine_1.getHeight());
-				allLines.get(theLine_2.getId()).setBounds(theLine_2.getCornerX(), theLine_2.getCornerY(),
-						theLine_2.getWidth(), theLine_2.getHeight());
+				if (theLine_1 != null) {
+					if (b) {
+						theLine_1.setX2pos(newSiteX - GlobalConstants.FSXDISTANCE);
+						theLine_1.setY2pos(newSiteY);
+					} else {
+						theLine_1.setX2pos(newSiteX);
+						theLine_1.setY2pos(newSiteY - GlobalConstants.FSYDISTANCE);
+					}
+
+					allLines.get(theLine_1.getId()).setBounds(theLine_1.getCornerX(), theLine_1.getCornerY(),
+							theLine_1.getWidth(), theLine_1.getHeight());
+				}
+				if (theLine_2 != null) {
+					if (b) {
+						theLine_2.setX2pos(newSiteX + GlobalConstants.FSXDISTANCE);
+						theLine_2.setY2pos(newSiteY);
+					} else {
+						theLine_2.setX2pos(newSiteX);
+						theLine_2.setY2pos(newSiteY + GlobalConstants.FSYDISTANCE);
+					}
+					allLines.get(theLine_2.getId()).setBounds(theLine_2.getCornerX(), theLine_2.getCornerY(),
+							theLine_2.getWidth(), theLine_2.getHeight());
+				}
 			}
 		}
 
@@ -251,16 +295,14 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			// TODO Auto-generated method stub
 			Component cp = (JLabel) e.getSource();
 			theSite = sitesM.get(cp.getName());
+			theSiteCenter = sitesM.get("center");
 			if (cp.getName() != null && cp.getName().equals("center")) {
 				isCenter = true;
-				startX_L = theSite.getXpos();
-				startY_L = theSite.getYpos();
 			} else {
 				isCenter = false;
+
 				theLine_1 = linesM.get(theSite.getId() + "_1");
 				theLine_2 = linesM.get(theSite.getId() + "_2");
-				startX_L = theLine_1.getX2pos();
-				startY_L = theLine_1.getY2pos();
 			}
 			//
 			startX = theSite.getXpos();
@@ -273,18 +315,15 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
 			Component cp = (JLabel) e.getSource();
-			// System.out.println("the cp name int mousePressed: " + cp.getName());
 			theSite = sitesM.get(cp.getName());
+			theSiteCenter = sitesM.get("center");
 			if (cp.getName() != null && cp.getName().equals("center")) {
 				isCenter = true;
-				startX_L = theSite.getXpos();
-				startY_L = theSite.getYpos();
 			} else {
 				isCenter = false;
+				theSiteCenter = sitesM.get("center");
 				theLine_1 = linesM.get(theSite.getId() + "_1");
 				theLine_2 = linesM.get(theSite.getId() + "_2");
-				startX_L = theLine_1.getX2pos();
-				startY_L = theLine_1.getY2pos();
 			}
 			//
 			startX = theSite.getXpos();
@@ -302,6 +341,11 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 
 	@Override
 	public void refresh(List<NetSiteModel> results, BitSet bss) {
+		if (results == null) {
+			updateGraphStatus(false);
+			bitpre.clear();
+		}
+
 		if (results == null) {
 			updateGraphStatus(false);
 			bitpre.clear();
@@ -323,39 +367,9 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			// BitSet不是线程安全的；bitpre bitcur必须在下一次接收 bss refresh前更新完毕！
 			// 因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
 			if (!bitcur.isEmpty())
-				updateGraphStatus(results, bitcur);
+				updateGraphStatusByResults(results);
 		}
+
 	}
 
-	public void networkRefresh(List<NetSiteModel> results) {
-		if (results == null) {
-			updateGraphStatus(false);
-			bitpre.clear();
-		} else {
-			// build bitmap
-			int i = 0;
-			bittemp.clear();
-			for (NetSiteModel nsm : results) {
-				if (nsm.getStatus())
-					bittemp.set(i);
-				i++;
-			}
-			if (isFirst) {
-				bitpre.clear();
-				bitcur.clear();
-				bitcur.or(bittemp);
-				isFirst = false;
-			} else {
-				bitcur.clear();
-				bitcur.or(bittemp);
-			}
-			bitcur.xor(bitpre);
-			// bitpre始终保存上一次状态
-			bitpre.clear();
-			bitpre.or(bittemp);
-
-			if (!bitcur.isEmpty())
-				updateGraphStatus(results, bitcur);
-		}
-	}
 }

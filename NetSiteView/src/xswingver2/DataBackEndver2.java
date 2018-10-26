@@ -31,7 +31,7 @@ public class DataBackEndver2 implements Runnable {
 	public void init() {
 		bscur = new BitSet(bssize);
 		bscur.clear();
-		for (NetSiteModel nsm : results) {
+		for (NetSiteModel nsm : results) {			
 			Callable<Boolean> t = new SimplePingver2(nsm);
 			tasks.add(t);
 		}

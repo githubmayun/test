@@ -89,12 +89,14 @@ public class ModelsByXML {
 			while (reader.hasNext()) {
 				if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
 					if ("line".equalsIgnoreCase(reader.getLocalName())) {
+						if (!"three".equals(reader.getAttributeValue(11).trim())) {
 							nsm = new NetSiteModel();
 							nsm.setId(reader.getAttributeValue(0).trim());
 							nsm.setStatus(Boolean.parseBoolean(reader.getAttributeValue(8).trim()));
 							nsm.setName(reader.getAttributeValue(9));
 							nsm.setIpaddr(reader.getAttributeValue(10).trim());
-							results.add(nsm);						
+							results.add(nsm);
+						}
 					}
 				}
 				reader.next();

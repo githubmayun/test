@@ -55,10 +55,8 @@ public class LineComponent extends JComponent {
 		// public BasicStroke(float width, int cap, int join, float miterlimit, float[]
 		// dash, float dash_phase)
 		if ("one".equalsIgnoreCase(lm.getType().trim())) {
-			//System.out.println("one");
 			g2.setStroke(new BasicStroke(getLineWidth(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 3.5f));
 		} else if ("two".equalsIgnoreCase(lm.getType().trim())) {
-			//System.out.println("two");
 			g2.setStroke(
 					new BasicStroke(getLineWidth(), BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 3.5f, getDash(), 0f));
 		} else {
@@ -73,7 +71,12 @@ public class LineComponent extends JComponent {
 		lm.setStatus(lm.getStatus() ? false : true);
 		repaint();
 	}
-
+   public void updateStatus(boolean b) {
+	   if(lm.getStatus() != b) {
+		   lm.setStatus(b);
+		   repaint();
+	   }
+   }
 	public Dimension getPreferredSize() {
 		//
 		return new Dimension(lm.getWidth(), lm.getHeight());

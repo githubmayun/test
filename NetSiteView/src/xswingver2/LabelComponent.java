@@ -44,4 +44,24 @@ public class LabelComponent extends JLabel {
 		setTFIcon();
 	}
 
+	public void validateStatus() {
+		if (lm.getId().equals("center")) {
+			lm.setStatus(true);
+		} else {
+			if (!lm.getLine1Status() && !lm.getLine2Status()) {
+				lm.setStatus(false);
+			} else {
+				lm.setStatus(true);
+			}
+			setTFIcon();
+		}
+	}
+
+	public void updateStatus(boolean b) {
+		if (lm.getStatus() != b) {
+			lm.setStatus(b);
+			setTFIcon();
+		}
+	}
+
 }
