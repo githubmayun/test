@@ -18,6 +18,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import xswingver2.model.LabelModel;
+import xswingver2.model.LineModel;
+import xswingver2.model.NetSiteModel;
+
 public class GraphPanelver2 extends JPanel implements Refreshing {
 	private static final long serialVersionUID = 1L;
 	private String background = null;
@@ -206,8 +210,6 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 
 	//
 	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		//
 		g.drawImage(icon.getImage(), 0, 0, this.getSize().width, this.getSize().height, null);
 	}
 

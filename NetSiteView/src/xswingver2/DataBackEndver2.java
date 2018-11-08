@@ -1,8 +1,10 @@
 package xswingver2;
 
 import java.awt.EventQueue;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -12,26 +14,31 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
 
+import xswingver2.model.NetSiteModel;
+import xswingver2.model.TopInfoModel;
+import xswingver2.model.WarnningMessageModel;
 
 public class DataBackEndver2 implements Runnable {
 	private List<Refreshing> listeners = new ArrayList<>();
+	//
 	private List<NetSiteModel> results = new ArrayList<>();
+	private TopInfoModel infoModel = new TopInfoModel();
+	private WarnningMessageModel messageModel=new WarnningMessageModel();
 	private BitSet bscur = null;
-	private int bssize;
+	//
 	private List<Callable<Boolean>> tasks = new ArrayList<Callable<Boolean>>();
 	private ExecutorService pool = Executors.newCachedThreadPool();// pool.shutdown?
 	private ExecutorCompletionService<Boolean> service = new ExecutorCompletionService<>(pool);
 
 	public DataBackEndver2() {
 		new ModelsByXML().parseNetSitesByStreamReader(results);
-		bssize = results.size();
+		bscur = new BitSet(results.size());
+		bscur.clear();
 		init();
 	}
 
 	public void init() {
-		bscur = new BitSet(bssize);
-		bscur.clear();
-		for (NetSiteModel nsm : results) {			
+		for (NetSiteModel nsm : results) {
 			Callable<Boolean> t = new SimplePingver2(nsm);
 			tasks.add(t);
 		}
@@ -41,7 +48,52 @@ public class DataBackEndver2 implements Runnable {
 		pool.shutdown();
 	}
 
-	public void runReresh() {
+	public void cancleJob() {
+		// ????????????????????
+	}
+
+	public void addRefreshing(Refreshing rf) {
+		listeners.add(rf);
+	}
+
+	public void delRefreshing(Refreshing rf) {
+		listeners.remove(rf);
+	}
+
+	public void notifyAllListeners(List<NetSiteModel> results, TopInfoModel infoModel, BitSet bsstate) {
+		for (Refreshing rf : listeners) {
+			if (rf instanceof JComponent) {
+				EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						rf.refresh(results, bsstate);
+					}
+				});
+			} else
+				rf.refresh(results, bsstate);
+		}
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		runRefreshAll();
+	}
+
+	public void runRefreshTopInfo() {
+		infoModel.setMissionInfo("xx-xxx全系统调试");
+		infoModel.setStartingTime("16:59:123");
+		infoModel.setCurrentTime(new SimpleDateFormat("HH:MM:SS").format(new Date()));
+		infoModel.setLastingTime("");
+		infoModel.setProcessInfo("第一次全系统测试");
+	}
+
+	public void runRefreshMessage() {
+		messageModel.setCurrentTime(new SimpleDateFormat("HH:MM:SS").format(new Date()));
+		messageModel.setMissionInfo("hahaha");
+		messageModel.setProcessInfo("111--111");
+	}
+
+	public void runRereshPing() {
 		for (Callable<Boolean> task : tasks) {
 			service.submit(task);
 		}
@@ -60,37 +112,12 @@ public class DataBackEndver2 implements Runnable {
 			}
 			index++;
 		}
-		notifyAllListeners(results, bscur);
 	}
 
-	public void cancleJob() {
-		// ????????????????????
-	}
-
-	public void addRefreshing(Refreshing rf) {
-		listeners.add(rf);
-	}
-
-	public void delRefreshing(Refreshing rf) {
-		listeners.remove(rf);
-	}
-
-	public void notifyAllListeners(List<NetSiteModel> results, BitSet bsstate) {
-		for (Refreshing rf : listeners) {
-			if (rf instanceof JComponent) {
-				EventQueue.invokeLater(new Runnable() {
-					public void run() {
-						rf.refresh(results, bsstate);
-					}
-				});
-			} else
-				rf.refresh(results, bsstate);
-		}
-	}
-
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		runReresh();
+	public void runRefreshAll() {
+		runRefreshTopInfo();
+		runRereshPing();
+		runRefreshMessage();
+		notifyAllListeners(results, infoModel, bscur);
 	}
 }

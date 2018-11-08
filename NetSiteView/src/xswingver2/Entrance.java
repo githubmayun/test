@@ -14,7 +14,7 @@ public class Entrance {
 		SpreadDatasByMulticast sdbm = new SpreadDatasByMulticast("238.10.10.10", 4567, true);
 		dbe.addRefreshing(sdbm);
 		ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
-		ses.scheduleAtFixedRate(dbe,5,1, TimeUnit.SECONDS);
+		ses.scheduleAtFixedRate(dbe,7,1, TimeUnit.SECONDS);
 		
 	//start client
 		ReceiveDatasByMulticast rdbm=new ReceiveDatasByMulticast("238.10.10.10",4567);
@@ -26,7 +26,6 @@ public class Entrance {
 				frame.setVisible(true);
 			}
 		});
-		new Thread(rdbm).start();
-		
+		new Thread(rdbm).start();		
 	}
 }

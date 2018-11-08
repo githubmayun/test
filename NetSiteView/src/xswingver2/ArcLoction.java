@@ -2,6 +2,8 @@ package xswingver2;
 
 import java.util.Map;
 
+import xswingver2.model.LabelModel;
+
 public class ArcLoction implements AutoLocation {
 
 

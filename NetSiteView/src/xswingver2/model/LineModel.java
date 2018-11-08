@@ -1,4 +1,6 @@
-package xswingver2;
+package xswingver2.model;
+
+import xswingver2.GlobalConstants;
 
 //LineModel
 public class LineModel {

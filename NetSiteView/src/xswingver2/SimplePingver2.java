@@ -8,6 +8,8 @@ import java.nio.charset.Charset;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+import xswingver2.model.NetSiteModel;
+
 public class SimplePingver2 implements Callable<Boolean> {
 	private NetSiteModel nsm = null;
 	private static final String OSNAME = System.getProperty("os.name");
@@ -20,9 +22,14 @@ public class SimplePingver2 implements Callable<Boolean> {
 	@Override
 	public Boolean call() throws Exception {
 		// TODO Auto-generated method stub
+		Long start = System.currentTimeMillis();
 		boolean b = commandExecPing(nsm.getIpaddr(), "1000");
-		 b=new Random().nextInt(100)>5;//for test
+		Long end = System.currentTimeMillis();
+		b = new Random().nextInt(100) > 5;// for test
 		nsm.setStatus(b);
+		nsm.setDelay((int) (end - start));
+		nsm.increaseTotal();
+		if(b) nsm.increaseCurrent();
 		return b;
 	}
 
@@ -42,7 +49,7 @@ public class SimplePingver2 implements Callable<Boolean> {
 			in = new BufferedReader(new InputStreamReader(p.getInputStream(), Charset.forName("GBK")));
 			while ((linestr = in.readLine()) != null) {
 				if (linestr.contains("TTL")) {
-					//System.out.println(nsm.getIpaddr() + " true");
+					// System.out.println(nsm.getIpaddr() + " true");
 					return true;
 				}
 			}

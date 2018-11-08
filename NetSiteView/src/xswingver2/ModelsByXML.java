@@ -10,6 +10,10 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import xswingver2.model.LabelModel;
+import xswingver2.model.LineModel;
+import xswingver2.model.NetSiteModel;
+
 public class ModelsByXML {
 
 	public static void main(String[] args) {

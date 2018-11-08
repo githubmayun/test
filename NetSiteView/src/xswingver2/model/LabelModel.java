@@ -1,4 +1,4 @@
-package xswingver2;
+package xswingver2.model;
 
 //LabelModel
 public class LabelModel {

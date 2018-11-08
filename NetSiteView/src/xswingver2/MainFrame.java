@@ -4,16 +4,20 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.EventHandler;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,6 +28,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
+import xswingver2.model.LabelModel;
+import xswingver2.model.LineModel;
+
 public class MainFrame extends JFrame {
 	/**
 	 * 
@@ -33,7 +40,7 @@ public class MainFrame extends JFrame {
 	JPanel topInfoPanel, bottomInfoPanel, buttonPanel, contentPanel;
 	private Map<String, LabelModel> sitesM = new HashMap<>();
 	private Map<String, LineModel> linesM = new HashMap<>();
-	// GraphPanel gpanel=null;
+	private Color backgroundColor=new Color(102,148,52);
 	GraphPanelver2 gpanel = null;
 	ReceiveDatasByMulticast dbe = null;
 
@@ -60,39 +67,30 @@ public class MainFrame extends JFrame {
 	}
 
 	public boolean init() {
-		/*
-		 * JMenuBar menuBar = new JMenuBar(); //setJMenuBar(menuBar); JMenu menu = new
-		 * JMenu("File"); menuBar.add(menu); JMenuItem newItem = new JMenuItem("New");
-		 * menu.add(newItem);
-		 * newItem.addActionListener(EventHandler.create(ActionListener.class, this,
-		 * "newPanel")); JMenuItem exitItem = new JMenuItem("Exit"); menu.add(exitItem);
-		 * exitItem.addActionListener(EventHandler.create(ActionListener.class, this,
-		 * "exitProgram"));
-		 */
 		this.setLayout(new BorderLayout());
-		topInfoPanel = new JPanel();
-		topInfoPanel.setPreferredSize(new Dimension(width / 8, height / 8));
-		topInfoPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-		topInfoPanel.setBackground(new Color(146, 150, 203));
-		topInfoPanel.setLayout(new GridLayout(1, 6));
+		
+		topInfoPanel = new MyTopInfoPanel(width, height / 8, this.backgroundColor);
 
-		//
+		// bottom infomation panel
 		bottomInfoPanel = new JPanel();
-		bottomInfoPanel.setPreferredSize(new Dimension(width / 12, height / 24));
+		bottomInfoPanel.setPreferredSize(new Dimension(width, height / 24));
 		bottomInfoPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-		bottomInfoPanel.setBackground(new Color(146, 150, 203));
-		//
-		buttonPanel = new JPanel();
-		buttonPanel.setPreferredSize(new Dimension(width / 8, height * 5 / 6));
-		buttonPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-		buttonPanel.setBackground(new Color(146, 150, 203));
-		GridLayout gl = new GridLayout(12, 1);
-		gl.setVgap(0);
-		buttonPanel.setLayout(gl);
-		buttonPanel.add(buildButton("网络态势1", new Color(130, 130, 255), new Color(255, 255, 255)));
-		buttonPanel.add(buildButton("网络态势1", new Color(91, 85, 147), new Color(255, 255, 255)));
-		buttonPanel.add(buildButton("网络态势3", new Color(91, 85, 147), new Color(255, 255, 255)));
-		//
+		bottomInfoPanel.setBackground(this.backgroundColor);
+
+		// left side buttonpanel
+		List<String> names = new ArrayList<>();
+		names.add("netgrahp");
+		names.add("nettable");
+		names.add("sniffers");
+		List<String> xnames = new ArrayList<>();
+		xnames.add("网络态势图");
+		xnames.add("网络表格图");
+		xnames.add("网络曲线图");
+		buttonPanel = new MyButtonPanel(width / 8, height * 5 / 6, 12, this.backgroundColor, new Color(135, 191, 72),
+				new Color(108, 157, 55), new Color(164, 207, 116));
+		((MyButtonPanel) buttonPanel).addButtons(MainFrame.this, names, xnames);
+
+		// center contentpanel
 		contentPanel = new JPanel();
 		// contentPanel.setPreferredSize(new Dimension(width*5/6,height*2/3));
 		contentPanel.setLayout(null);
@@ -102,21 +100,21 @@ public class MainFrame extends JFrame {
 		this.add(buttonPanel, BorderLayout.WEST);
 		this.add(contentPanel, BorderLayout.CENTER);
 
-		contentPanel.add(newNetGraphPanel(width * 7 / 8, height * 5 / 6));
 		return true;
 	}
 
-	private JButton buildButton(String name, Color bc, Color fc) {
-		JButton button = new JButton(name);
-		button.setBackground(bc);
-		button.setForeground(fc);
-		return button;
+	public void execButtonCommand(String command) {
+		if (command.equals("netgrahp"))
+			newNetGraphPanel(width * 7 / 8, height * 5 / 6);
+		else if (command.equals("nettable")) {
+			System.out.println("table..");
+		}
 	}
 
-	public JPanel newNetGraphPanel(int w, int h) {
+	public void newNetGraphPanel(int w, int h) {
 		if (gpanel == null)
 			new ParseSites(w, h).execute();
-		return gpanel;
+
 	}
 
 	public void exitProgram() {
@@ -140,8 +138,9 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+
 	//
-	public class ParseSites extends SwingWorker<Boolean, String> {
+	class ParseSites extends SwingWorker<Boolean, String> {
 		private int width, height;
 
 		public ParseSites(int w, int h) {
@@ -161,7 +160,7 @@ public class MainFrame extends JFrame {
 			try {
 				if (get()) {
 					// gpanel = new GraphPanel("background.jpg",1100,700,sitesM,linesM);
-					new ArcLoction(sitesM).loc(1750, 800);
+					new ArcLoction(sitesM).loc(width, height);
 					// new CircleLoction(sitesM).loc(1750, 800);
 					gpanel = new GraphPanelver2("background.jpg", width, height, sitesM, linesM);
 					dbe.addRefreshing(gpanel);

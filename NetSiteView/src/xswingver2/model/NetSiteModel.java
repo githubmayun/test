@@ -1,8 +1,8 @@
-package xswingver2;
+package xswingver2.model;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-public class NetSiteModel implements Serializable{
+
+public class NetSiteModel implements Serializable {
 	/**
 	 * 
 	 */
@@ -12,34 +12,19 @@ public class NetSiteModel implements Serializable{
 	private String ipaddr;
 	private boolean status;
 	private int delay;
+	private int total;
+	private int current;
 
 	public NetSiteModel() {
-		id=null;
+		id = null;
 		name = null;
 		ipaddr = null;
 		status = false;
 		delay = 0;
+		total = 0;
+		current = 0;
 	}
-  /*  @SuppressWarnings("finally")
-	public boolean ping() {
-		InetAddress address;
-		boolean b = false;
-		try {
-			address = InetAddress.getByName(ipaddr);
-			Long start = System.currentTimeMillis();
-			b = address.isReachable(1000);
-			Long end = System.currentTimeMillis() - start;
-		} catch (Exception e) {
-			b = false;
-		} finally {
-			if (b)
-				System.out.println(this.name + "--ping ----" + this.ipaddr);
-			else
-				System.out.println(this.name + "--ping-not-reachable--" + this.ipaddr);
-			this.setStatus(b);
-			return b;
-		}
-	}*/
+
 	public String getId() {
 		return this.id;
 	}
@@ -50,6 +35,22 @@ public class NetSiteModel implements Serializable{
 
 	public String getIpaddr() {
 		return this.ipaddr;
+	}
+
+	public boolean getStatus() {
+		return this.status;
+	}
+
+	public int getDelay() {
+		return this.delay;
+	}
+
+	public int getTotal() {
+		return this.total;
+	}
+
+	public int getCurrent() {
+		return this.current;
 	}
 
 	public void setId(String id) {
@@ -64,20 +65,27 @@ public class NetSiteModel implements Serializable{
 		this.ipaddr = ip;
 	}
 
-	public boolean getStatus() {
-		return this.status;
-	}
-
 	public void setStatus(boolean b) {
 		this.status = b;
-	}
-
-	public int getDelay() {
-		return this.delay;
 	}
 
 	public void setDelay(int dt) {
 		this.delay = dt;
 	}
 
+	public void setTotal(int total) {
+		this.total = total;
+	}
+
+	public void increaseTotal() {
+		this.total++;
+	}
+
+	public void setCurrent(int dt) {
+		this.current = dt;
+	}
+
+	public void increaseCurrent() {
+		this.current++;
+	}
 }
