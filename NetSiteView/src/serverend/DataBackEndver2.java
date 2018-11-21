@@ -1,4 +1,4 @@
-package xswingver2;
+package serverend;
 
 import java.awt.EventQueue;
 import java.text.SimpleDateFormat;
@@ -14,9 +14,11 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
 
-import xswingver2.model.NetSiteModel;
-import xswingver2.model.TopInfoModel;
-import xswingver2.model.WarnningMessageModel;
+import model.NetSiteModel;
+import model.TopInfoModel;
+import model.WarnningMessageModel;
+import xswingver2.ModelsByXML;
+import xswingver2.Refreshing;
 
 public class DataBackEndver2 implements Runnable {
 	private List<Refreshing> listeners = new ArrayList<>();

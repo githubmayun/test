@@ -10,15 +10,13 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import xswingver2.model.LabelModel;
-import xswingver2.model.LineModel;
-import xswingver2.model.NetSiteModel;
+import model.LabelModel;
+import model.LineModel;
+import model.NetSiteModel;
 
 public class ModelsByXML {
 
 	public static void main(String[] args) {
-		TestParseXml.parseSitesByStreamReader();
-		TestParseXml.parseLinesByStreamReader();
 	}
 
 	//
@@ -87,7 +85,7 @@ public class ModelsByXML {
 
 	//
 	public void parseNetSitesByStreamReader(List<NetSiteModel> results) {
-		XMLStreamReader reader = ModelsByXML.getStreamReader();
+		XMLStreamReader reader = getStreamReader();
 		NetSiteModel nsm = null;
 		try {
 			while (reader.hasNext()) {
@@ -113,7 +111,7 @@ public class ModelsByXML {
 
 	//
 	public static void printSitesByStreamReader() {
-		XMLStreamReader reader = TestParseXml.getStreamReader();
+		XMLStreamReader reader = getStreamReader();
 		try {
 			while (reader.hasNext()) {
 				if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
@@ -135,7 +133,7 @@ public class ModelsByXML {
 
 	//
 	public static void printLinesByStreamReader() {
-		XMLStreamReader reader = TestParseXml.getStreamReader();
+		XMLStreamReader reader = getStreamReader();
 		try {
 			while (reader.hasNext()) {
 				if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {

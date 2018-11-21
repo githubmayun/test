@@ -1,4 +1,4 @@
-package xswingver2;
+package serverend;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-import xswingver2.model.NetSiteModel;
+import model.NetSiteModel;
 
 public class SimplePingver2 implements Callable<Boolean> {
 	private NetSiteModel nsm = null;

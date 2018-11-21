@@ -15,12 +15,14 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingWorker;
 
-import xswingver2.model.LabelModel;
-import xswingver2.model.LineModel;
-import xswingver2.model.NetSiteModel;
+import model.LabelModel;
+import model.LineModel;
+import model.NetSiteModel;
 
 public class GraphPanelver2 extends JPanel implements Refreshing {
 	private static final long serialVersionUID = 1L;
@@ -29,8 +31,8 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 	private Map<String, LabelComponent> allSites = new HashMap<String, LabelComponent>();
 	private Map<String, LineComponent> allLines = new HashMap<String, LineComponent>();
 	private ImageIcon icon = null;
-	private Map<String, LabelModel> sitesM = null;
-	private Map<String, LineModel> linesM = null;
+	private Map<String, LabelModel> sitesM = new HashMap<>();
+	private Map<String, LineModel> linesM = new HashMap<>();
 	private BitSet bitcur, bitpre, bittemp;
 	private boolean isFirst;
 
@@ -52,20 +54,9 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		this.init();
 	}
 
-	public GraphPanelver2(String background, int x, int y, Map<String, LabelModel> sites,
-			Map<String, LineModel> lines) {
-		this.background = background;
-		this.icon = new ImageIcon(this.background);
-		this.width = x;
-		this.height = y;
-		this.sitesM = sites;
-		this.linesM = lines;
-		this.init();
-	}
-
 	public boolean init() {
 		setSize(width, height);
-		setBorder(BorderFactory.createLineBorder(Color.CYAN));
+		//setBorder(BorderFactory.createLineBorder(Color.CYAN));
 		setLayout(null);
 		bitcur = new BitSet(linesM.size());
 		bitpre = new BitSet(linesM.size());
@@ -372,6 +363,38 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 				updateGraphStatusByResults(results);
 		}
 
+	}
+	class ParseSites extends SwingWorker<Boolean, String> {
+		private int width, height;
+
+		public ParseSites(int w, int h) {
+			this.width = w;
+			this.height = h;
+		}
+
+		@Override
+		protected Boolean doInBackground() throws Exception {
+			// TODO Auto-generated method stub
+			new ModelsByXML().parseSitesByStreamReader(sitesM, linesM);
+			return true;
+		}
+
+		//
+		protected void done() {
+			try {
+				if (get()) {
+					// gpanel = new GraphPanel("background.jpg",1100,700,sitesM,linesM);
+					new ArcLoction(sitesM).loc(width, height);
+					// new CircleLoction(sitesM).loc(1750, 800);
+					GraphPanelver2	gpanel = new GraphPanelver2("background.jpg", width, height);
+					//dbe.addRefreshing(gpanel);
+					//contentPanel.add(gpanel);
+					validate();
+				}
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e);
+			}
+		}
 	}
 
 }

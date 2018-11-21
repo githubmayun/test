@@ -1,4 +1,4 @@
-package xswingver2.model;
+package model;
 
 import xswingver2.GlobalConstants;
 

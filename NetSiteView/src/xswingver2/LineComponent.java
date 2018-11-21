@@ -10,7 +10,7 @@ import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
 
-import xswingver2.model.LineModel;
+import model.LineModel;
 
 public class LineComponent extends JComponent {
 	/**

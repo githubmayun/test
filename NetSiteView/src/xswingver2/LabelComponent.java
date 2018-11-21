@@ -4,7 +4,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import xswingver2.model.LabelModel;
+import model.LabelModel;
 
 public class LabelComponent extends JLabel {
 

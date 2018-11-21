@@ -28,8 +28,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
-import xswingver2.model.LabelModel;
-import xswingver2.model.LineModel;
+import model.LabelModel;
+import model.LineModel;
 
 public class MainFrame extends JFrame {
 	/**
@@ -38,10 +38,9 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private int width, height, screenWidth, screenHeight;
 	JPanel topInfoPanel, bottomInfoPanel, buttonPanel, contentPanel;
-	private Map<String, LabelModel> sitesM = new HashMap<>();
-	private Map<String, LineModel> linesM = new HashMap<>();
+
 	private Color backgroundColor=new Color(102,148,52);
-	GraphPanelver2 gpanel = null;
+
 	ReceiveDatasByMulticast dbe = null;
 
 	public MainFrame(ReceiveDatasByMulticast dbe) {
@@ -112,8 +111,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public void newNetGraphPanel(int w, int h) {
-		if (gpanel == null)
-			new ParseSites(w, h).execute();
+		
 
 	}
 
@@ -139,38 +137,5 @@ public class MainFrame extends JFrame {
 	}
 
 
-	//
-	class ParseSites extends SwingWorker<Boolean, String> {
-		private int width, height;
-
-		public ParseSites(int w, int h) {
-			this.width = w;
-			this.height = h;
-		}
-
-		@Override
-		protected Boolean doInBackground() throws Exception {
-			// TODO Auto-generated method stub
-			new ModelsByXML().parseSitesByStreamReader(sitesM, linesM);
-			return true;
-		}
-
-		//
-		protected void done() {
-			try {
-				if (get()) {
-					// gpanel = new GraphPanel("background.jpg",1100,700,sitesM,linesM);
-					new ArcLoction(sitesM).loc(width, height);
-					// new CircleLoction(sitesM).loc(1750, 800);
-					gpanel = new GraphPanelver2("background.jpg", width, height, sitesM, linesM);
-					dbe.addRefreshing(gpanel);
-					contentPanel.add(gpanel);
-					validate();
-				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(MainFrame.this, e);
-			}
-		}
-	}
 
 }
