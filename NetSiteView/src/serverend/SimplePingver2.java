@@ -25,7 +25,7 @@ public class SimplePingver2 implements Callable<Boolean> {
 		Long start = System.currentTimeMillis();
 		boolean b = commandExecPing(nsm.getIpaddr(), "1000");
 		Long end = System.currentTimeMillis();
-		b = new Random().nextInt(100) > 5;// for test
+		b = new Random().nextInt(100) > 3;// for test
 		nsm.setStatus(b);
 		nsm.setDelay((int) (end - start));
 		nsm.increaseTotal();

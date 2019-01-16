@@ -2,65 +2,63 @@ package xswingver2;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
 
+import clientend.ReceiveDatasByMulticast;
 import model.LabelModel;
 import model.LineModel;
 import model.NetSiteModel;
 
-public class GraphPanelver2 extends JPanel implements Refreshing {
+public class InnerGraphPanel extends JPanel implements Refreshing {
 	private static final long serialVersionUID = 1L;
-	private String background = null;
-	private int width, height;
+	private int width, height;// panel width height
 	private Map<String, LabelComponent> allSites = new HashMap<String, LabelComponent>();
 	private Map<String, LineComponent> allLines = new HashMap<String, LineComponent>();
-	private ImageIcon icon = null;
-	private Map<String, LabelModel> sitesM = new HashMap<>();
-	private Map<String, LineModel> linesM = new HashMap<>();
-	private BitSet bitcur, bitpre, bittemp;
+	private Map<String, LabelModel> sitesM;
+	private Map<String, LineModel> linesM;
+	//
+	private BitSet bitcur, bitpre;
 	private boolean isFirst;
+	private ImageIcon bgImage;
 
-	public GraphPanelver2() {
+	public InnerGraphPanel() {
 		this.init();
 	}
 
-	public GraphPanelver2(String background) {
-		this.background = background;
-		icon = new ImageIcon(this.background);
-		this.init();
-	}
-
-	public GraphPanelver2(String background, int x, int y) {
-		this.background = background;
-		icon = new ImageIcon(this.background);
+	public InnerGraphPanel(int x, int y, Map<String, LabelModel> sitesM, Map<String, LineModel> linesM) {
 		this.width = x;
 		this.height = y;
+		this.sitesM = sitesM;
+		this.linesM = linesM;
+		bgImage=new ImageIcon("background.jpg");
 		this.init();
 	}
 
 	public boolean init() {
-		setSize(width, height);
-		//setBorder(BorderFactory.createLineBorder(Color.CYAN));
+		this.setPreferredSize(new Dimension(width, height));
+		// setBorder(BorderFactory.createLineBorder(Color.CYAN));
 		setLayout(null);
 		bitcur = new BitSet(linesM.size());
 		bitpre = new BitSet(linesM.size());
-		bittemp = new BitSet(linesM.size());
 		isFirst = true;
 		buildSites();
 		buildLines();
@@ -201,7 +199,9 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 
 	//
 	public void paintComponent(Graphics g) {
-		g.drawImage(icon.getImage(), 0, 0, this.getSize().width, this.getSize().height, null);
+		//System.out.println("building graph....");		
+		super.paintComponent(g);
+		g.drawImage(bgImage.getImage(), 0, 0, this.getSize().width, this.getSize().height, null);
 	}
 
 	private class SizeBehaviour extends ComponentAdapter {
@@ -231,12 +231,12 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			int newSiteX = startX + newX - oldX;
 			int newSiteY = startY + newY - oldY;
 			int cenSiteX = theSiteCenter.getXpos();
-			int cenSiteY = theSiteCenter.getYpos();			
+			int cenSiteY = theSiteCenter.getYpos();
 			// update site model
 			theSite.setXpos(Math.max(Math.min(newSiteX, width - theSite.getWidth() / 2), theSite.getWidth() / 2));
 			theSite.setYpos(Math.max(Math.min(newSiteY, height - theSite.getHeight() / 2), theSite.getHeight() / 2));
-			newSiteX=theSite.getXpos();
-			newSiteY=theSite.getYpos();
+			newSiteX = theSite.getXpos();
+			newSiteY = theSite.getYpos();
 			boolean b = Math.abs(newSiteY - cenSiteY) > Math.abs(newSiteX - cenSiteX);
 			cp.setBounds(theSite.getXpos() - theSite.getWidth() / 2, theSite.getYpos() - theSite.getHeight() / 2,
 					theSite.getWidth(), theSite.getHeight());
@@ -286,22 +286,6 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
-			Component cp = (JLabel) e.getSource();
-			theSite = sitesM.get(cp.getName());
-			theSiteCenter = sitesM.get("center");
-			if (cp.getName() != null && cp.getName().equals("center")) {
-				isCenter = true;
-			} else {
-				isCenter = false;
-
-				theLine_1 = linesM.get(theSite.getId() + "_1");
-				theLine_2 = linesM.get(theSite.getId() + "_2");
-			}
-			//
-			startX = theSite.getXpos();
-			startY = theSite.getYpos();
-			oldX = e.getXOnScreen();
-			oldY = e.getYOnScreen();
 		}
 
 		@Override
@@ -334,10 +318,6 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 
 	@Override
 	public void refresh(List<NetSiteModel> results, BitSet bss) {
-		if (results == null) {
-			updateGraphStatus(false);
-			bitpre.clear();
-		}
 
 		if (results == null) {
 			updateGraphStatus(false);
@@ -361,39 +341,6 @@ public class GraphPanelver2 extends JPanel implements Refreshing {
 			// 因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
 			if (!bitcur.isEmpty())
 				updateGraphStatusByResults(results);
-		}
-
-	}
-	class ParseSites extends SwingWorker<Boolean, String> {
-		private int width, height;
-
-		public ParseSites(int w, int h) {
-			this.width = w;
-			this.height = h;
-		}
-
-		@Override
-		protected Boolean doInBackground() throws Exception {
-			// TODO Auto-generated method stub
-			new ModelsByXML().parseSitesByStreamReader(sitesM, linesM);
-			return true;
-		}
-
-		//
-		protected void done() {
-			try {
-				if (get()) {
-					// gpanel = new GraphPanel("background.jpg",1100,700,sitesM,linesM);
-					new ArcLoction(sitesM).loc(width, height);
-					// new CircleLoction(sitesM).loc(1750, 800);
-					GraphPanelver2	gpanel = new GraphPanelver2("background.jpg", width, height);
-					//dbe.addRefreshing(gpanel);
-					//contentPanel.add(gpanel);
-					validate();
-				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, e);
-			}
 		}
 	}
 
