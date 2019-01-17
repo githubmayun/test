@@ -339,7 +339,7 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 			bitpre.or(bss);
 			// BitSet不是线程安全的；bitpre bitcur必须在下一次接收 bss refresh前更新完毕！
 			// 因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
-			if (!bitcur.isEmpty())
+			if (!bitcur.isEmpty()&&InnerGraphPanel.this.isVisible())
 				updateGraphStatusByResults(results);
 		}
 	}

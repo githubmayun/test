@@ -80,7 +80,8 @@ public class MainFrame extends JFrame {
 		this.add(bottomInfoPanel, BorderLayout.SOUTH);
 		this.add(buttonPanel, BorderLayout.WEST);
 		this.add(contentPanel, BorderLayout.CENTER);
-
+		
+		execButtonCommand(names.get(0));
 		return true;
 	}
 
