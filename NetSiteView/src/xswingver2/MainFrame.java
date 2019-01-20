@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import clientend.ReceiveDatasByMulticast;
@@ -55,6 +56,7 @@ public class MainFrame extends JFrame {
 
 		// bottom infomation panel
 		bottomInfoPanel = new JPanel();
+		bottomInfoPanel.add(new JLabel("仅作为学习交流和测试用,不能用于商业用途,可能不稳定. copyright:2019/gww-all rights reserved"));
 		bottomInfoPanel.setPreferredSize(new Dimension(width, height / 24));
 		bottomInfoPanel.setBorder(BorderFactory.createLineBorder(ColorsUI.panelBorderColor));
 		bottomInfoPanel.setBackground(this.backgroundColor);
@@ -64,11 +66,13 @@ public class MainFrame extends JFrame {
 		names.add("netgraph");
 		names.add("nettable");
 		names.add("sniffers");
+		names.add("exit");
 		List<String> xnames = new ArrayList<>();
 		xnames.add("网络态势图");
 		xnames.add("网络表格图");
 		xnames.add("网络曲线图");
-		buttonPanel = new MyButtonPanel(width / 8, height * 5 / 6, 11, this.backgroundColor, ColorsUI.btnOnActionColor,
+		xnames.add("退出程序");
+		buttonPanel = new MyButtonPanel(width / 8, height * 5 / 6, 12, this.backgroundColor, ColorsUI.btnOnActionColor,
 				ColorsUI.btnOnDaemonColor, ColorsUI.btnOnRolloverColor, MainFrame.this);
 		((MyButtonPanel) buttonPanel).addButtons(names, xnames);
 		//
@@ -80,15 +84,18 @@ public class MainFrame extends JFrame {
 		this.add(bottomInfoPanel, BorderLayout.SOUTH);
 		this.add(buttonPanel, BorderLayout.WEST);
 		this.add(contentPanel, BorderLayout.CENTER);
-		
-		execButtonCommand(names.get(0));
+
+		execButtonCommand(names.get(0),"initialize");
 		return true;
 	}
 
-	public void execButtonCommand(String command) {
+	public void execButtonCommand(String command,String type) {
 		if (command == null)
 			return;
-		((MyContentPanel) contentPanel).execCommand(command);
+		if (command.equals("exit"))
+			System.exit(0);
+		else
+			((MyContentPanel) contentPanel).execCommand(command,type);
 	}
 
 	public void newNetGraphPanel(int w, int h) {

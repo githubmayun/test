@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -17,9 +19,11 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
@@ -39,17 +43,19 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 	private BitSet bitcur, bitpre;
 	private boolean isFirst;
 	private ImageIcon bgImage;
-
+    //
+	private MyContentPanel parent=null;
 	public InnerGraphPanel() {
 		this.init();
 	}
 
-	public InnerGraphPanel(int x, int y, Map<String, LabelModel> sitesM, Map<String, LineModel> linesM) {
+	public InnerGraphPanel(int x, int y, Map<String, LabelModel> sitesM, Map<String, LineModel> linesM,MyContentPanel p) {
 		this.width = x;
 		this.height = y;
 		this.sitesM = sitesM;
 		this.linesM = linesM;
-		bgImage=new ImageIcon("background.jpg");
+		this.parent=p;
+		bgImage = new ImageIcon("background.jpg");		
 		this.init();
 	}
 
@@ -57,11 +63,59 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 		this.setPreferredSize(new Dimension(width, height));
 		// setBorder(BorderFactory.createLineBorder(Color.CYAN));
 		setLayout(null);
+		//
+		JPanel btnPanel = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+			}
+		};
+		ButtonGroup buttonGroup = new ButtonGroup();
+		JRadioButton wrapButton = new JRadioButton("ARC");
+		wrapButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				new ArcLoction(sitesM).loc(width, height);
+				buildLineModels();
+				updatePositionLayout();
+			}
+		});
+		buttonGroup.add(wrapButton);
+		wrapButton.setSelected(true);
+		JRadioButton scrollButton = new JRadioButton("CIRCLE");
+		scrollButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				new CircleLoction(sitesM).loc(width, height);
+				buildLineModels();
+				updatePositionLayout();
+			}
+		});
+
+		buttonGroup.add(scrollButton);
+		btnPanel.add(wrapButton);
+		btnPanel.add(scrollButton);
+		this.add(btnPanel);
+		btnPanel.setBounds(10, 10, 200, 30);
+		//
 		bitcur = new BitSet(linesM.size());
 		bitpre = new BitSet(linesM.size());
 		isFirst = true;
 		buildSites();
 		buildLines();
+		return true;
+	}
+
+	public boolean updatePositionLayout() {
+		LabelModel labelM = null;
+		LineModel lineM = null;
+		for (LabelComponent label : allSites.values()) {
+			labelM = label.getModel();
+			label.setBounds(labelM.getXpos() - labelM.getWidth() / 2, labelM.getYpos() - labelM.getHeight() / 2,
+					labelM.getWidth(), labelM.getHeight());
+		}
+		for(LineComponent line:allLines.values()) {
+			lineM=line.getModel();
+			line.setBounds(lineM.getCornerX(), lineM.getCornerY(), lineM.getWidth(), lineM.getHeight());
+		}
+
 		return true;
 	}
 
@@ -97,7 +151,7 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 			allLines.put(lm.getId(), linecomponent);
 			this.add(linecomponent);
 			linecomponent.setBounds(lm.getCornerX(), lm.getCornerY(), lm.getWidth(), lm.getHeight());
-			if ("three".equalsIgnoreCase(lm.getType())) {
+			if ("three".equalsIgnoreCase(lm.getType())) {//可以省略 linecomponet.paint()还会过滤
 				linecomponent.setVisible(false);
 			}
 		}
@@ -199,7 +253,7 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 
 	//
 	public void paintComponent(Graphics g) {
-		//System.out.println("building graph....");		
+		// System.out.println("building graph....");
 		super.paintComponent(g);
 		g.drawImage(bgImage.getImage(), 0, 0, this.getSize().width, this.getSize().height, null);
 	}
@@ -286,6 +340,8 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
+			Component cp = (JLabel) e.getSource();
+			parent.execCommand("flux", cp.getName());
 		}
 
 		@Override
@@ -339,7 +395,7 @@ public class InnerGraphPanel extends JPanel implements Refreshing {
 			bitpre.or(bss);
 			// BitSet不是线程安全的；bitpre bitcur必须在下一次接收 bss refresh前更新完毕！
 			// 因为是迭代更新的，所以bitpre和bitcur的更新必须是同步的！
-			if (!bitcur.isEmpty()&&InnerGraphPanel.this.isVisible())
+			if (!bitcur.isEmpty() && InnerGraphPanel.this.isVisible())
 				updateGraphStatusByResults(results);
 		}
 	}

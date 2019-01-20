@@ -23,7 +23,10 @@ public class LineComponent extends JComponent {
 	public LineComponent(LineModel lm) {
 		this.lm = lm;
 	}
-
+    public LineModel getModel() {
+    	return this.lm;
+    }
+	
 	private float getLineWidth() {
 		return Float.parseFloat(lm.getLineWidth().trim());
 	}

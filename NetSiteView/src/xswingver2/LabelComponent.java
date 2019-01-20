@@ -23,7 +23,10 @@ public class LabelComponent extends JLabel {
 		this.fIcon = new ImageIcon(lm.getIcon_f());
 		setTFIcon();
 	}
-
+    public LabelModel getModel() {
+    	return this.lm;
+    }
+	
 	public void setTrueIcon(String ti) {
 		this.tIcon = new ImageIcon(ti);
 		setTFIcon();

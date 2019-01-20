@@ -23,13 +23,15 @@ public class SimplePingver2 implements Callable<Boolean> {
 	public Boolean call() throws Exception {
 		// TODO Auto-generated method stub
 		Long start = System.currentTimeMillis();
-		boolean b = commandExecPing(nsm.getIpaddr(), "1000");
-		Long end = System.currentTimeMillis();
+		boolean b = commandExecPing(nsm.getIpaddr(), "1000");	
+		Long end = System.currentTimeMillis();	
+		if(b) nsm.setDelay((int) (end - start));
+		else nsm.setDelay(800);
 		b = new Random().nextInt(100) > 3;// for test
 		nsm.setStatus(b);
-		nsm.setDelay((int) (end - start));
-		nsm.increaseTotal();
-		if(b) nsm.increaseCurrent();
+		nsm.increaseTotal();		
+		if (b)
+			nsm.increaseCurrent();
 		return b;
 	}
 
